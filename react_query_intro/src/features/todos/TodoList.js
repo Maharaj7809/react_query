@@ -9,35 +9,13 @@ const TodoList = () => {
     const [newTodo, setNewTodo] = useState('')
     const queryClient = useQueryClient()
 
-    const {
-        isLoading,
-        isError,
-        error,
-        data: todos
-    } = useQuery('todos', getTodos, {
-        select: data => data.sort((a, b) => b.id - a.id)
-    })
+    const { isLoading, isError, error, data: todos } = useQuery('todos', getTodos)
 
-    const addTodoMutation = useMutation(addTodo, {
-        onSuccess: () => {
-            // Invalidates cache and refetch 
-            queryClient.invalidateQueries("todos")
-        }
-    })
+    const addTodoMutation = useMutation(addTodo, { onSuccess: () => {  queryClient.invalidateQueries("todos") } })
 
-    const updateTodoMutation = useMutation(updateTodo, {
-        onSuccess: () => {
-            // Invalidates cache and refetch 
-            queryClient.invalidateQueries("todos")
-        }
-    })
+    const updateTodoMutation = useMutation(updateTodo, {  onSuccess: () => { queryClient.invalidateQueries("todos") }})
 
-    const deleteTodoMutation = useMutation(deleteTodo, {
-        onSuccess: () => {
-            // Invalidates cache and refetch 
-            queryClient.invalidateQueries("todos")
-        }
-    })
+    const deleteTodoMutation = useMutation(deleteTodo, { onSuccess: () => {  queryClient.invalidateQueries("todos") }})
 
     const handleSubmit = (e) => {
         e.preventDefault()

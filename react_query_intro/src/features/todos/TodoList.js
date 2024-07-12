@@ -83,3 +83,80 @@ import { useState } from 'react'
     )
 }
 export default TodoList
+
+
+
+
+
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+export function createGlobalState<T>(
+  queryKey: unknown,
+  initialData: T | null = null,
+) {
+  return function () {
+    const queryClient = useQueryClient();
+
+    const { data } = useQuery({
+      queryKey: [queryKey],
+      queryFn: () => Promise.resolve(initialData),
+      refetchInterval: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchIntervalInBackground: false,
+    });
+
+    function setData(data: Partial<T>) {
+      queryClient.setQueryData([queryKey], data);
+    }
+
+    function resetData() {
+      queryClient.invalidateQueries({
+        queryKey: [queryKey],
+      });
+      queryClient.refetchQueries({
+        queryKey: [queryKey],
+      });
+    }
+
+    return { data, setData, resetData };
+  };
+}
+
+import { createGlobalState } from '.';
+
+type UserState = {
+  name: string;
+  isSignedIn: boolean;
+};
+
+export const useUserState = createGlobalState<UserState>('user', {
+  name: 'Darius',
+  isSignedIn: true,
+});
+
+
+import { useUserState } from './state/user';
+
+export default function App() {
+  const { setData, resetData } = useUserState();
+
+  return (
+    <div>
+      <UserCard />
+      <input onChange={(e) => setData({ name: e.target.value })} />
+      <button onClick={resetData}>Reset</button>
+    </div>
+  );
+}
+
+function UserCard() {
+  const { data } = useUserState();
+  return (
+    <>
+      <h1 className="text-xl font-bold">{data?.name}</h1>
+    </>
+  );
+}
+
